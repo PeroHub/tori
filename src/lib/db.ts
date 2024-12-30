@@ -8,10 +8,25 @@ if (!MONGODB_URI) {
   );
 }
 
-let cached = global.mongoose;
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// Define the shape of the global mongoose cache
+declare global {
+  var mongoose: MongooseCache | undefined;
+}
+
+// Initialize the cache with a type assertion
+const cached = (global.mongoose || {
+  conn: null,
+  promise: null,
+}) as MongooseCache;
+
+// Set the global cache if it doesn't exist
+if (!global.mongoose) {
+  global.mongoose = cached;
 }
 
 export async function connectToDB() {
