@@ -1,0 +1,47 @@
+# First, create a new directory and navigate into it
+mkdir tourism-ai
+cd tourism-ai
+
+# Initialize a new Next.js project with TypeScript and Tailwind
+npx create-next-app@latest . --typescript --tailwind --app --src-dir --import-alias "@/*"
+
+# Install main dependencies
+npm install @clerk/nextjs @prisma/client @tremor/react axios cloudinary framer-motion lucide-react mongoose next-themes openai react-hot-toast tailwindcss-animate zod react-datepicker @mapbox/mapbox-gl-geocoder nodemailer mapbox-gl
+
+# Install dev dependencies (type definitions)
+npm install --save-dev @types/node @types/react @types/react-dom @types/mongoose @types/nodemailer @types/react-datepicker @types/mapbox__mapbox-gl-geocoder
+
+# Install additional UI dependencies
+npm install @radix-ui/react-tabs @radix-ui/react-dialog @radix-ui/react-dropdown-menu @upstash/redis
+
+# Run the development server
+npm run dev
+
+# Remove node_modules and package-lock.json if they exist
+rm -rf node_modules package-lock.json
+
+# Install dependencies
+npm install
+
+# Create the images directory
+mkdir -p public/images
+
+# You'll need to add a tourism background image to this directory
+# Example: public/images/hero-bg.jpg
+
+# Install @radix-ui/react-tabs clsx tailwind-merge
+npm install @radix-ui/react-tabs clsx tailwind-merge
+
+# Clear Next.js cache
+rm -rf .next
+
+# Restart the development server
+npm run dev
+
+# Install @google/generative-ai
+npm install @google/generative-ai
+
+# Install Mapbox GL and Geocoder packages
+npm install @mapbox/mapbox-gl-geocoder mapbox-gl
+npm install --save-dev @types/mapbox__mapbox-gl-geocoder
+
