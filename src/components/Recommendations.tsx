@@ -13,7 +13,9 @@ export function Recommendations() {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await fetch("/api/events/recommendations");
+        const response = await fetch("/api/events/recommendations", {
+          cache: "no-store",
+        });
         if (!response.ok) throw new Error("Failed to fetch recommendations");
         const data = await response.json();
         setEvents(data);

@@ -10,6 +10,8 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 
+export const dynamic = "force-dynamic";
+
 export default function EventsPage() {
   const { isSignedIn } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
@@ -18,9 +20,11 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch("/api/events");
+      const response = await fetch("/api/events", {
+        cache: "no-store",
+      });
       if (!response.ok) throw new Error("Failed to fetch events");
-      const data: Event[] = await response.json();
+      const data = await response.json();
       setEvents(data);
     } catch (error) {
       setError("Error loading events. Please try again later.");
