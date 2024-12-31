@@ -60,7 +60,7 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="grid gap-6">
+            <div className="grid gap-2">
               {submittedEvents.map((event) => (
                 <EventCard
                   key={event._id}

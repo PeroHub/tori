@@ -10,7 +10,7 @@ const highlights = [
     description:
       "Experience Nigeria's longest beach with pristine sands stretching over 45km along the Atlantic coast.",
     image:
-      "https://i0.wp.com/www.nigeriagalleria.com/Nigeria/States_Nigeria/Akwa-Ibom/Images/Ibeno-Beach.jpg",
+      "https://res.cloudinary.com/dywd8r6rd/image/upload/v1735638781/ib_t7wy6a.jpg",
     link: "/destinations",
   },
   {

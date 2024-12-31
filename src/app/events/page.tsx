@@ -40,59 +40,69 @@ export default function EventsPage() {
   const handleSearch = (filteredEvents: Event[]) => {
     setEvents(filteredEvents);
   };
-  //check if loading is true
+
   if (loading) return <Loading />;
   if (error) return <ErrorMessage message={error} retry={fetchEvents} />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Discover Events</h1>
-        {isSignedIn && (
-          <Link
-            href="/events/register"
-            className="flex items-center space-x-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Register New Event</span>
-          </Link>
-        )}
-      </div>
-      <div className="mb-8">
-        <EventSearch onSearch={handleSearch} />
-      </div>
-      {events.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No events found.</p>
-          {isSignedIn ? (
+    <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">
+            Discover Events
+          </h1>
+          {isSignedIn && (
             <Link
               href="/events/register"
-              className="inline-flex items-center space-x-2 text-primary hover:text-primary/80"
+              className="inline-flex items-center justify-center space-x-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
             >
-              <Plus className="w-5 h-5" />
-              <span>Register your event now</span>
-            </Link>
-          ) : (
-            <Link
-              href="/sign-in"
-              className="text-primary hover:text-primary/80"
-            >
-              Sign in to register an event
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span>Register New Event</span>
             </Link>
           )}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => (
-            <EventCard
-              key={event._id}
-              event={event}
-              type="subscribed"
-              onUnsubscribe={fetchEvents}
-            />
-          ))}
+
+        <div className="mb-6 sm:mb-8 w-full">
+          <EventSearch onSearch={handleSearch} className="w-full" />
         </div>
-      )}
+
+        {events.length === 0 ? (
+          <div className="text-center py-8 sm:py-12 px-4">
+            <p className="text-gray-500 mb-4 text-sm sm:text-base">
+              No events found.
+            </p>
+            {isSignedIn ? (
+              <Link
+                href="/events/register"
+                className="inline-flex items-center justify-center space-x-2 text-primary hover:text-primary/80 text-sm sm:text-base"
+              >
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <span>Register your event now</span>
+              </Link>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="text-primary hover:text-primary/80 text-sm sm:text-base"
+              >
+                Sign in to register an event
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {events.map((event) => (
+              <div key={event._id} className="w-full">
+                <EventCard
+                  event={event}
+                  type="subscribed"
+                  onUnsubscribe={fetchEvents}
+                  className="h-full"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

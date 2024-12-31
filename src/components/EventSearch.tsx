@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
 import { Event } from "@/types";
 import { useDebounce } from "@/hooks/useDebounce";
+import { cn } from "@/lib/utils";
 
 interface EventSearchProps {
   onSearch: (events: Event[]) => void;
+  className?: string;
 }
 
-export function EventSearch({ onSearch }: EventSearchProps) {
+export function EventSearch({ onSearch, className }: EventSearchProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("");
   const [dateRange, setDateRange] = useState<"all" | "upcoming" | "past">(
@@ -39,9 +41,9 @@ export function EventSearch({ onSearch }: EventSearchProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-4">
-        <div className="flex-1 relative">
+    <div className={cn("space-y-4", className)}>
+      <div className="md:flex gap-4">
+        <div className="md:flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"

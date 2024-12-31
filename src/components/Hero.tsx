@@ -43,7 +43,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-black/40" />
 
         {/* Video Controls */}
-        <button
+        {/* <button
           onClick={toggleMute}
           className="absolute bottom-4 right-4 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition"
         >
@@ -52,7 +52,7 @@ export function Hero() {
           ) : (
             <Volume2 className="w-6 h-6" />
           )}
-        </button>
+        </button> */}
       </div>
 
       {/* Navigation */}

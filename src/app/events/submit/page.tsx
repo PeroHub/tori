@@ -54,11 +54,11 @@ export default function SubmitEvent() {
       if (!response.ok) {
         throw new Error("Failed to submit event");
       }
-
       setSuccess("Event submitted successfully!");
+      (e.target as HTMLFormElement).reset();
       setTimeout(() => {
         router.push("/events");
-      }, 2000);
+      }, 1000);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);

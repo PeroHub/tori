@@ -15,7 +15,7 @@ export default function HomePage() {
         <Highlights />
         <CulturalHighlights />
         <LocalExperiences />
-        <FeaturedDestinations />
+        {/* <FeaturedDestinations /> */}
         <PopularEvents />
       </div>
       <ChatBot />
