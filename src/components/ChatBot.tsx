@@ -82,7 +82,7 @@ export function ChatBot() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-20 right-4 w-96 bg-white rounded-lg shadow-xl overflow-hidden"
+            className="fixed bottom-20 right-0 w-70 md:w-96 bg-white rounded-lg shadow-xl overflow-hidden"
           >
             {/* Header */}
             <div className="bg-primary text-white p-4 flex justify-between items-center">

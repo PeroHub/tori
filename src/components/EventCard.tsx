@@ -66,91 +66,96 @@ export function EventCard({
   };
 
   return (
-    <div
-      className={cn("bg-white rounded-lg shadow-md overflow-hidden", className)}
-    >
-      <div className="flex flex-col h-full">
-        {/* Image Container */}
-        <div className="relative w-full h-48 sm:h-64">
-          <img
-            src={event.image}
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
+    <Link href={`/events/${event._id}`}>
+      <div
+        className={cn(
+          "bg-white rounded-lg shadow-md overflow-hidden",
+          className
+        )}
+      >
+        <div className="flex flex-col h-full">
+          {/* Image Container */}
+          <div className="relative w-full h-48 sm:h-64">
+            <img
+              src={event.image}
+              alt={event.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
 
-        {/* Content Container */}
-        <div className="flex-1 p-4 sm:p-6 flex flex-col">
-          <div className="flex-1">
-            <Link href={`/events/${event._id}`}>
-              <h3 className="text-xl font-semibold mb-2 hover:text-primary transition line-clamp-2">
-                {event.title}
-              </h3>
-            </Link>
-            <p className="text-gray-600 mb-4 line-clamp-2">
-              {event.description}
-            </p>
-            <div className="space-y-2">
-              <div className="flex items-center text-gray-500">
-                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                <span className="text-sm truncate">
-                  {formatDate(event.date)}
-                </span>
-              </div>
-              <div className="flex items-center text-gray-500">
-                <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                <span className="text-sm truncate">
-                  {event.location.address}
-                </span>
-              </div>
-              <div className="flex items-center text-gray-500">
-                <Tag className="w-4 h-4 mr-2 flex-shrink-0" />
-                <span className="text-sm capitalize">{event.category}</span>
+          {/* Content Container */}
+          <div className="flex-1 p-4 sm:p-6 flex flex-col">
+            <div className="flex-1">
+              <Link href={`/events/${event._id}`}>
+                <h3 className="text-xl font-semibold mb-2 hover:text-primary transition line-clamp-2">
+                  {event.title}
+                </h3>
+              </Link>
+              <p className="text-gray-600 mb-4 line-clamp-2">
+                {event.description}
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center text-gray-500">
+                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="text-sm truncate">
+                    {formatDate(event.date)}
+                  </span>
+                </div>
+                <div className="flex items-center text-gray-500">
+                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="text-sm truncate">
+                    {event.location.address}
+                  </span>
+                </div>
+                <div className="flex items-center text-gray-500">
+                  <Tag className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="text-sm capitalize">{event.category}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <AddToCalendar event={event} />
-            {type === "subscribed" && (
-              <SubscribeButton
-                eventId={event._id}
-                initialSubscribed={true}
-                onUnsubscribe={onUnsubscribe}
-                onSubscribe={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            )}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <AddToCalendar event={event} />
+              {type === "subscribed" && (
+                <SubscribeButton
+                  eventId={event._id}
+                  initialSubscribed={true}
+                  onUnsubscribe={onUnsubscribe}
+                  onSubscribe={function (): void {
+                    throw new Error("Function not implemented.");
+                  }}
+                />
+              )}
+            </div>
           </div>
         </div>
+
+        {type === "submitted" && (
+          <div className="px-6 py-4 border-t flex justify-between items-center">
+            <div className="text-sm text-gray-500">
+              Status: <span className="capitalize">{event.status}</span>
+            </div>
+            <button
+              onClick={handleDelete}
+              disabled={loading}
+              className="text-red-500 hover:text-red-600 disabled:opacity-50 text-sm"
+            >
+              Delete Event
+            </button>
+          </div>
+        )}
+
+        {error && (
+          <Toast message={error} type="error" onClose={() => setError(null)} />
+        )}
+        {success && (
+          <Toast
+            message={success}
+            type="success"
+            onClose={() => setSuccess(null)}
+          />
+        )}
       </div>
-
-      {type === "submitted" && (
-        <div className="px-6 py-4 border-t flex justify-between items-center">
-          <div className="text-sm text-gray-500">
-            Status: <span className="capitalize">{event.status}</span>
-          </div>
-          <button
-            onClick={handleDelete}
-            disabled={loading}
-            className="text-red-500 hover:text-red-600 disabled:opacity-50 text-sm"
-          >
-            Delete Event
-          </button>
-        </div>
-      )}
-
-      {error && (
-        <Toast message={error} type="error" onClose={() => setError(null)} />
-      )}
-      {success && (
-        <Toast
-          message={success}
-          type="success"
-          onClose={() => setSuccess(null)}
-        />
-      )}
-    </div>
+    </Link>
   );
 }
