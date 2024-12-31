@@ -40,7 +40,7 @@ export default function EventsPage() {
   const handleSearch = (filteredEvents: Event[]) => {
     setEvents(filteredEvents);
   };
-
+  //check if loading is true
   if (loading) return <Loading />;
   if (error) return <ErrorMessage message={error} retry={fetchEvents} />;
 
