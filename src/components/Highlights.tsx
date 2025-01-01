@@ -11,7 +11,7 @@ const highlights = [
       "Experience Nigeria's longest beach with pristine sands stretching over 45km along the Atlantic coast.",
     image:
       "https://res.cloudinary.com/dywd8r6rd/image/upload/v1735638781/ib_t7wy6a.jpg",
-    link: "/destinations",
+    link: "",
   },
   {
     title: "Rich Cultural Heritage",
@@ -19,7 +19,7 @@ const highlights = [
       "Discover the vibrant traditions of the Ibibio, Annang, and Oron people through festivals and ceremonies.",
     image:
       "https://res.cloudinary.com/dywd8r6rd/image/upload/v1735566693/cul_cdl8a9.jpg",
-    link: "/destinations",
+    link: "",
   },
   {
     title: "Sustainable Tourism",
@@ -27,7 +27,7 @@ const highlights = [
       "Supporting local communities and preserving our cultural heritage through responsible tourism practices.",
     image:
       "https://res.cloudinary.com/dywd8r6rd/image/upload/v1735566893/sha_xszukm.jpg",
-    link: "/destinations",
+    link: "",
   },
 ];
 
