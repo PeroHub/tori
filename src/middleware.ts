@@ -10,6 +10,7 @@ export default authMiddleware({
     "/events/(.*)",
     "/events/(.*)", // This allows access to all event routes
     "/api/events/(.*)", // This allows access to all event API routes
+    "/api/chat",
   ],
   // Protected routes that require authentication
   ignoredRoutes: [
