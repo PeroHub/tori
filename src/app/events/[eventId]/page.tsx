@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Event } from "@/types";
 import { Loading } from "@/components/ui/loading";
 import { ErrorMessage } from "@/components/ui/error";
@@ -13,6 +13,7 @@ import { Toast } from "@/components/ui/toast";
 
 export default function EventDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const { getToken } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
