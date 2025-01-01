@@ -24,6 +24,7 @@
     "axios": "^1.6.2",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^1.41.0",
+    "cors": "^2.8.5",
     "framer-motion": "^10.16.5",
     "lucide-react": "^0.292.0",
     "mapbox-gl": "^3.9.1",

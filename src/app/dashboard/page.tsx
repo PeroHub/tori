@@ -1,36 +1,37 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Event } from "@/types";
+import { EventCard } from "@/components/EventCard";
 import { Loading } from "@/components/ui/loading";
 import { ErrorMessage } from "@/components/ui/error";
-import { EventCard } from "@/components/EventCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function DashboardPage() {
-  const { user } = useUser();
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [submittedEvents, setSubmittedEvents] = useState<Event[]>([]);
-  const [subscribedEvents, setSubscribedEvents] = useState<Event[]>([]);
 
   const fetchEvents = async () => {
     try {
-      // Fetch submitted events
-      const submittedResponse = await fetch("/api/events/submitted");
-      if (!submittedResponse.ok)
-        throw new Error("Failed to fetch submitted events");
-      const submittedData = await submittedResponse.json();
-      setSubmittedEvents(submittedData);
+      const response = await fetch("/api/events/user", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Add cache control headers
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+        // Ensure credentials are included
+        credentials: "include",
+      });
 
-      // Fetch subscribed events
-      const subscribedResponse = await fetch("/api/events/subscribed");
-      if (!subscribedResponse.ok)
-        throw new Error("Failed to fetch subscribed events");
-      const subscribedData = await subscribedResponse.json();
-      setSubscribedEvents(subscribedData);
+      if (!response.ok) throw new Error("Failed to fetch events");
+      const data = await response.json();
+      setEvents(data);
     } catch (error) {
+      console.error("Fetch error:", error);
       setError("Error loading events. Please try again later.");
     } finally {
       setLoading(false);
@@ -53,7 +54,7 @@ export default function DashboardPage() {
           <TabsTrigger value="subscribed">My Subscribed Events</TabsTrigger>
         </TabsList>
         <TabsContent value="submitted">
-          {submittedEvents.length === 0 ? (
+          {events.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-500">
                 You haven&apos;t submitted any events yet.
@@ -61,7 +62,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="grid gap-2">
-              {submittedEvents.map((event) => (
+              {events.map((event) => (
                 <EventCard
                   key={event._id}
                   event={event}
@@ -73,7 +74,7 @@ export default function DashboardPage() {
           )}
         </TabsContent>
         <TabsContent value="subscribed">
-          {subscribedEvents.length === 0 ? (
+          {events.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-500">
                 You haven&apos;t subscribed to any events yet.
@@ -81,7 +82,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="grid gap-6">
-              {subscribedEvents.map((event) => (
+              {events.map((event) => (
                 <EventCard
                   key={event._id}
                   event={event}

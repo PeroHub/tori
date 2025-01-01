@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Event } from "@/types";
 import { Loading } from "@/components/ui/loading";
 import { ErrorMessage } from "@/components/ui/error";
+import { useAuth } from "@clerk/nextjs";
 import { Calendar, MapPin, Tag, Users, ArrowLeft, Share2 } from "lucide-react";
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { AddToCalendar } from "@/components/AddToCalendar";
@@ -12,25 +13,37 @@ import { Toast } from "@/components/ui/toast";
 
 export default function EventDetailsPage() {
   const params = useParams();
-  const router = useRouter();
+  const { getToken } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const response = await fetch(`/api/events/${params.eventId}`);
-        if (!response.ok) throw new Error("Failed to fetch event");
-        const data = await response.json();
-        setEvent(data);
-      } catch (error) {
-        setError("Error loading event. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchEvent = async () => {
+    try {
+      const response = await fetch(`/api/events/${params.eventId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      setEvent(data);
+    } catch (error) {
+      console.error("Error fetching event:", error);
+      setError("Error loading event. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchEvent();
   }, [params.eventId]);
 

@@ -1,13 +1,15 @@
 import { authMiddleware } from "@clerk/nextjs";
 
 export default authMiddleware({
-  // Public routes that don't require authentication
+  // Add public routes that don't require authentication
   publicRoutes: [
     "/",
     "/events",
     "/api/events",
     "/api/events/popular",
     "/events/(.*)",
+    "/events/(.*)", // This allows access to all event routes
+    "/api/events/(.*)", // This allows access to all event API routes
   ],
   // Protected routes that require authentication
   ignoredRoutes: [
