@@ -94,10 +94,10 @@ export function Hero() {
             className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto mb-8 sm:mb-12 px-4"
           >
             {[
-              { title: "Cultural Sites", href: "/destinations/cultural" },
-              { title: "Beaches", href: "/destinations/beaches" },
-              { title: "Local Cuisine", href: "/experiences/food" },
-              { title: "Festivals", href: "/events/festivals" },
+              { title: "Cultural Sites", href: "/cultural-sites" },
+              { title: "Beaches", href: "/beaches" },
+              { title: "Local Cuisine", href: "/cuisine" },
+              { title: "Festivals", href: "/festivals" },
             ].map((item) => (
               <Link
                 key={item.title}

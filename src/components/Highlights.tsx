@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const highlights = [
   {
@@ -10,7 +11,7 @@ const highlights = [
     description:
       "Experience Nigeria's longest beach with pristine sands stretching over 45km along the Atlantic coast.",
     image:
-      "https://res.cloudinary.com/dywd8r6rd/image/upload/v1735638781/ib_t7wy6a.jpg",
+      "https://res.cloudinary.com/dywd8r6rd/image/upload/v1736104188/happy-ibeno_aszm1l.jpg",
     link: "",
   },
   {
@@ -45,9 +46,11 @@ export function Highlights() {
           } flex flex-col lg:flex-row items-center gap-12`}
         >
           <div className="lg:w-1/2">
-            <img
+            <Image
               src={highlight.image}
               alt={highlight.title}
+              width={400}
+              height={400}
               className="w-full h-[400px] object-cover rounded-lg"
             />
           </div>

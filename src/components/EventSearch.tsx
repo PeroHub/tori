@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 interface EventSearchProps {
   onSearch: (events: Event[]) => void;
   className?: string;
+  events: Event[];
 }
 
-export function EventSearch({ onSearch, className }: EventSearchProps) {
+export function EventSearch({ onSearch, className, events }: EventSearchProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("");
   const [dateRange, setDateRange] = useState<"all" | "upcoming" | "past">(
