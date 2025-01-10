@@ -5,18 +5,25 @@ export default authMiddleware({
     "/",
     "/events",
     "/events/(.*)",
-    "/api/events",
-    "/api/events/(.*)",
     "/cultural-sites",
     "/beaches",
     "/cuisine",
     "/festivals",
     "/sign-in",
     "/sign-up",
+    "/api/events/popular",
+    "/api/events/search",
+    "/api/events/[eventId]",
   ],
-  ignoredRoutes: ["/api/events", "/api/events/(.*)"],
+  ignoredRoutes: ["/((?!api|trpc))(_next|.+..+)(.+)"],
 });
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: [
+    "/((?!.*\\..*|_next).*)",
+    "/",
+    "/(api|trpc)(.*)",
+    "/admin(.*)",
+    "/dashboard(.*)",
+  ],
 };

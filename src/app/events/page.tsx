@@ -20,36 +20,40 @@ export default function EventsPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/events", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: "no-store",
-      });
+      // Simple fetch request
+      const res = await fetch("/api/events");
 
-      const data = await response.json();
+      // Log response status
+      console.log("Response status:", res.status);
 
-      // Check if the response contains an error
-      if (data.error) {
-        throw new Error(data.error);
+      // Parse JSON response
+      const data = await res.json();
+
+      // Log received data
+      console.log("Received data:", data);
+
+      // Check for error message in response
+      if (data.message) {
+        throw new Error(data.message);
       }
 
       // Ensure data is an array
-      const eventsArray = Array.isArray(data) ? data : [];
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid response format");
+      }
 
-      setEvents(eventsArray);
-      setFilteredEvents(eventsArray);
+      // Update both states
+      setEvents(data);
+      setFilteredEvents(data);
     } catch (error: any) {
-      console.error("Error fetching events:", error);
-      setError(
-        error.message || "Error loading events. Please try again later."
-      );
+      console.error("Fetch error:", error);
+      setError(error.message || "Failed to load events");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch on mount
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -58,11 +62,10 @@ export default function EventsPage() {
     setFilteredEvents(searchResults);
   };
 
+  // console.log(filteredEvents, "filteredEvents", "--", events);
+
   if (loading) return <Loading />;
   if (error) return <ErrorMessage message={error} retry={fetchEvents} />;
-
-  const hasEvents = events.length > 0;
-  const displayEvents = filteredEvents.length > 0 ? filteredEvents : events;
 
   return (
     <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
@@ -88,7 +91,7 @@ export default function EventsPage() {
           />
         </div>
 
-        {!hasEvents ? (
+        {events.length === 0 ? (
           <div className="text-center py-8 sm:py-12 px-4">
             <p className="text-gray-500 mb-4 text-sm sm:text-base">
               No events found.
@@ -102,7 +105,7 @@ export default function EventsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-fr">
-            {displayEvents.map((event) => (
+            {events.map((event) => (
               <EventCard
                 key={event._id}
                 event={event}

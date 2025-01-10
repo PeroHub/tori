@@ -1,122 +1,158 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { EventCard } from "@/components/EventCard";
 import { Event } from "@/types";
 import { Loading } from "@/components/ui/loading";
 import { ErrorMessage } from "@/components/ui/error";
-import { AdminEventCard } from "@/components/AdminEventCard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
-export default function AdminDashboard() {
-  const { user } = useUser();
+type TabType = "pending" | "approved" | "rejected";
+
+export default function AdminPage() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const router = useRouter();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>("pending");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
-  const [approvedEvents, setApprovedEvents] = useState<Event[]>([]);
-  const [rejectedEvents, setRejectedEvents] = useState<Event[]>([]);
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch("/api/admin/events");
-      if (!response.ok) throw new Error("Failed to fetch events");
+      setLoading(true);
+      const response = await fetch("/api/events/user", {
+        cache: "no-store",
+      });
       const data = await response.json();
 
-      setPendingEvents(
-        data.filter((event: Event) => event.status === "pending")
-      );
-      setApprovedEvents(
-        data.filter((event: Event) => event.status === "approved")
-      );
-      setRejectedEvents(
-        data.filter((event: Event) => event.status === "rejected")
-      );
-    } catch (error) {
-      setError("Error loading events. Please try again later.");
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch events");
+      }
+
+      setEvents(Array.isArray(data) ? data : []);
+    } catch (error: any) {
+      console.error("Admin fetch error:", error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+  const handleStatusUpdate = async (eventId: string, status: string) => {
+    try {
+      const response = await fetch("/api/events/status", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ eventId, status }),
+      });
 
-  if (loading) return <Loading />;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update event status");
+      }
+
+      await fetchEvents();
+    } catch (error: any) {
+      console.error("Status update error:", error);
+      alert(error.message || "Failed to update event status");
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      router.push("/sign-in");
+      return;
+    }
+    fetchEvents();
+  }, [isLoaded, isSignedIn, router]);
+
+  if (!isLoaded || loading) return <Loading />;
   if (error) return <ErrorMessage message={error} retry={fetchEvents} />;
 
+  const filteredEvents = events.filter((event) => event.status === activeTab);
+  const tabCount = {
+    pending: events.filter((e) => e.status === "pending").length,
+    approved: events.filter((e) => e.status === "approved").length,
+    rejected: events.filter((e) => e.status === "rejected").length,
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-      <Tabs defaultValue="pending" className="w-full">
-        <TabsList>
-          <TabsTrigger value="pending">
-            Pending ({pendingEvents.length})
-          </TabsTrigger>
-          <TabsTrigger value="approved">
-            Approved ({approvedEvents.length})
-          </TabsTrigger>
-          <TabsTrigger value="rejected">
-            Rejected ({rejectedEvents.length})
-          </TabsTrigger>
-        </TabsList>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          Admin Dashboard
+        </h1>
 
-        <TabsContent value="pending">
-          <div className="grid gap-6">
-            {pendingEvents.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-gray-500">
-                  No pending events to review.
-                </div>
-              </div>
+        {/* Status Tabs */}
+        <div className="flex space-x-4 mb-6 border-b border-gray-200">
+          {(["pending", "approved", "rejected"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-4 px-4 relative ${
+                activeTab === tab
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <span className="capitalize">{tab}</span>
+              <span className="ml-2 text-sm text-gray-400">
+                ({tabCount[tab]})
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Events (
+              {filteredEvents.length})
+            </h2>
+            {filteredEvents.length === 0 ? (
+              <p className="text-gray-500">No {activeTab} events found.</p>
             ) : (
-              pendingEvents.map((event) => (
-                <AdminEventCard
-                  key={event._id}
-                  event={event}
-                  onStatusChange={fetchEvents}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredEvents.map((event) => (
+                  <div key={event._id} className="relative">
+                    <EventCard
+                      event={event}
+                      type="admin"
+                      className="h-full"
+                      showStatus={true}
+                    />
+                    {activeTab === "pending" && (
+                      <div className="absolute bottom-4 right-4 space-x-2">
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(event._id, "approved")
+                          }
+                          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(event._id, "rejected")
+                          }
+                          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        </TabsContent>
-
-        <TabsContent value="approved">
-          <div className="grid gap-6">
-            {approvedEvents.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-gray-500">No approved events.</div>
-              </div>
-            ) : (
-              approvedEvents.map((event) => (
-                <AdminEventCard
-                  key={event._id}
-                  event={event}
-                  onStatusChange={fetchEvents}
-                />
-              ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="rejected">
-          <div className="grid gap-6">
-            {rejectedEvents.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-gray-500">No rejected events.</div>
-              </div>
-            ) : (
-              rejectedEvents.map((event) => (
-                <AdminEventCard
-                  key={event._id}
-                  event={event}
-                  onStatusChange={fetchEvents}
-                />
-              ))
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 }

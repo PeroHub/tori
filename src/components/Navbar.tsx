@@ -32,12 +32,12 @@ export function Navbar() {
             >
               Events
             </Link>
-            <Link
+            {/* <Link
               href="/destinations"
               className="text-gray-600 hover:text-primary transition"
             >
               Destinations
-            </Link>
+            </Link> */}
             {isSignedIn ? (
               <>
                 <Link

@@ -1,55 +1,44 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+let isConnected = false;
 
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env"
-  );
-}
+export const connectToDB = async () => {
+  mongoose.set("strictQuery", true);
 
-interface MongooseCache {
-  conn: typeof mongoose | null;
-  promise: Promise<typeof mongoose> | null;
-}
-
-// Define the shape of the global mongoose cache
-declare global {
-  var mongoose: MongooseCache | undefined;
-}
-
-// Initialize the cache with a type assertion
-const cached = (global.mongoose || {
-  conn: null,
-  promise: null,
-}) as MongooseCache;
-
-// Set the global cache if it doesn't exist
-if (!global.mongoose) {
-  global.mongoose = cached;
-}
-
-export async function connectToDB() {
-  if (cached.conn) {
-    return cached.conn;
+  if (!process.env.MONGODB_URI) {
+    console.log("MONGODB_URI is not defined");
+    throw new Error("MONGODB_URI is not defined");
   }
 
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-      return mongoose;
-    });
+  if (isConnected) {
+    console.log("Using existing database connection");
+    return;
   }
 
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
+    const db = await mongoose.connect(process.env.MONGODB_URI, {
+      connectTimeoutMS: 10000, // 10 seconds
+      socketTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 10000,
+      retryWrites: true,
+      retryReads: true,
+    });
 
-  return cached.conn;
-}
+    isConnected = true;
+    console.log("New database connection established");
+    console.log("Database connection state:", mongoose.connection.readyState);
+
+    return db;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("MongoDB connection error:", {
+        name: error.name,
+        message: error.message,
+        uri: process.env.MONGODB_URI?.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"), // Log URI with hidden credentials
+      });
+    } else {
+      console.error("MongoDB connection error:", error);
+    }
+    throw error;
+  }
+};

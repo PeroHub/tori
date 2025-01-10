@@ -67,7 +67,7 @@ export function EventForm() {
       }
 
       // Prepare event data
-      const eventData = {
+      let eventData = {
         title: formData.title,
         description: formData.description,
         date: formData.date,
@@ -80,6 +80,11 @@ export function EventForm() {
             lng: formData.location.coordinates.lng,
           },
         },
+      };
+
+      const dbData = {
+        ...eventData,
+        status: "pending",
       };
 
       // Submit event data
@@ -164,6 +169,8 @@ export function EventForm() {
           <option value="sports">Sports</option>
           <option value="music">Music</option>
           <option value="food">Food & Drink</option>
+          <option value="technology">Technology</option>
+          <option value="other">Other</option>
         </select>
       </div>
 

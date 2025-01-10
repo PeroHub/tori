@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const eventSchema = new mongoose.Schema({
+const EventSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   date: { type: Date, required: true },
@@ -9,20 +9,25 @@ const eventSchema = new mongoose.Schema({
   location: {
     address: { type: String, required: true },
     coordinates: {
-      lat: { type: Number, default: 0 },
-      lng: { type: Number, default: 0 },
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true },
     },
   },
+  userId: { type: String, required: true },
   status: {
     type: String,
     enum: ["pending", "approved", "rejected"],
     default: "pending",
   },
-  createdBy: { type: String, required: true },
-  subscribers: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
-const Event = mongoose.models.Event || mongoose.model("Event", eventSchema);
+// Update timestamps on save
+EventSchema.pre("save", function (next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+const Event = mongoose.models.Event || mongoose.model("Event", EventSchema);
 export default Event;
