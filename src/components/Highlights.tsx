@@ -11,7 +11,7 @@ const highlights = [
     description:
       "Experience Nigeria's longest beach with pristine sands stretching over 45km along the Atlantic coast.",
     image:
-      "https://res.cloudinary.com/dywd8r6rd/image/upload/v1736104188/happy-ibeno_aszm1l.jpg",
+      "https://res.cloudinary.com/dywd8r6rd/image/upload/v1736572600/b_jqssvt.jpg",
     link: "",
   },
   {
