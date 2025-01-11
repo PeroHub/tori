@@ -1,9 +1,11 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { CalendarDays, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { Event } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface EventCardProps {
   event: Event;
@@ -11,6 +13,7 @@ interface EventCardProps {
   className?: string;
   showStatus?: boolean;
   onUnsubscribe?: () => void;
+  onStatusChange?: (eventId: string, status: "approved" | "rejected") => void;
 }
 
 export function EventCard({
@@ -18,9 +21,30 @@ export function EventCard({
   type = "default",
   className = "",
   showStatus = false,
+  onStatusChange,
 }: EventCardProps) {
-  const { title, description, image, date, status } = event;
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+  const { _id, title, description, image, date, status } = event;
   const locationAddress = event.location.address;
+
+  const handleStatusChange = async (status: "approved" | "rejected") => {
+    if (!onStatusChange) return;
+    onStatusChange(event._id, status);
+  };
+
+  const handleActionClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isSignedIn) {
+      router.push("/sign-in");
+    }
+  };
+
+  const handleCardClick = () => {
+    if (type !== "admin" && type !== "dashboard") {
+      router.push(`/events/${_id}`);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -37,7 +61,12 @@ export function EventCard({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md overflow-hidden ${className}`}
+      className={`bg-white rounded-lg shadow-md overflow-hidden ${className} ${
+        type !== "admin" && type !== "dashboard"
+          ? "cursor-pointer hover:shadow-lg"
+          : ""
+      }`}
+      onClick={handleCardClick}
     >
       <div className="relative h-48">
         <Image src={image} alt={title} fill className="object-cover" />
@@ -68,6 +97,38 @@ export function EventCard({
             <span className="line-clamp-1">{locationAddress}</span>
           </div>
         </div>
+        {type === "admin" && (
+          <div className="mt-4 pt-4 border-t flex justify-end space-x-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStatusChange("approved");
+              }}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+            >
+              Approve
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStatusChange("rejected");
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+            >
+              Reject
+            </button>
+          </div>
+        )}
+        {/* {!isSignedIn && type !== "admin" && (
+          <div className="mt-4 pt-4 border-t">
+            <button
+              onClick={handleActionClick}
+              className="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition text-sm"
+            >
+              Sign in to interact
+            </button>
+          </div>
+        )} */}
       </div>
     </div>
   );

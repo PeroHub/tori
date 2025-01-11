@@ -1,74 +1,99 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 interface Notification {
   _id: string;
-  title: string;
+  userId: string;
   message: string;
-  type: "event_update" | "reminder" | "system";
-  eventId?: string;
   read: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  markAsRead: (notificationId: string) => Promise<void>;
-  refetchNotifications: () => Promise<void>;
+  markAsRead: (notificationId: string) => void;
+  markAllAsRead: () => void;
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(
-  undefined
-);
+const NotificationContext = createContext<NotificationContextType>({
+  notifications: [],
+  unreadCount: 0,
+  markAsRead: () => {},
+  markAllAsRead: () => {},
+});
 
-export function NotificationProvider({ children }: { children: ReactNode }) {
+export function NotificationProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { userId } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const fetchNotifications = async () => {
-    if (!userId) return;
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!userId) return;
 
-    try {
-      const response = await fetch("/api/notifications");
-      const data = await response.json();
-      setNotifications(data);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
+      try {
+        const response = await fetch(`/api/notifications?userId=${userId}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setNotifications(data || []);
+        } else {
+          console.error("Failed to fetch notifications:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, [userId]);
 
   const markAsRead = async (notificationId: string) => {
     try {
-      await fetch("/api/notifications", {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notificationId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ read: true }),
       });
 
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n))
-      );
+      if (response.ok) {
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n))
+        );
+      }
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
 
-  useEffect(() => {
-    if (userId) {
-      fetchNotifications();
-    }
-  }, [userId]);
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+      if (response.ok) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      }
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
+
+  // Safely calculate unread count
+  const unreadCount = notifications?.filter((n) => !n.read)?.length || 0;
 
   return (
     <NotificationContext.Provider
@@ -76,7 +101,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         notifications,
         unreadCount,
         markAsRead,
-        refetchNotifications: fetchNotifications,
+        markAllAsRead,
       }}
     >
       {children}
@@ -84,12 +109,4 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useNotifications() {
-  const context = useContext(NotificationContext);
-  if (context === undefined) {
-    throw new Error(
-      "useNotifications must be used within a NotificationProvider"
-    );
-  }
-  return context;
-}
+export const useNotifications = () => useContext(NotificationContext);

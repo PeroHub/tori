@@ -103,7 +103,7 @@ export function EventForm() {
       setSuccess("Event submitted successfully! Awaiting approval.");
       setTimeout(() => {
         router.push("/dashboard");
-      }, 2000);
+      }, 1000);
     } catch (error) {
       console.error("Submission error:", error);
       setError(

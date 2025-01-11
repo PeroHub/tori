@@ -1,25 +1,32 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Loading } from "@/components/ui/loading";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isLoaded, userId } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
+  const currentPath = usePathname();
 
   useEffect(() => {
-    if (isLoaded && !userId) {
-      router.push("/sign-in");
+    if (isLoaded && !isSignedIn) {
+      // Store the current path before redirecting
+      const returnUrl = encodeURIComponent(currentPath);
+      router.push(`/sign-in?redirect=${returnUrl}`);
     }
-  }, [isLoaded, userId, router]);
+  }, [isLoaded, isSignedIn, router, currentPath]);
 
   if (!isLoaded) {
-    return <Loading />;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
   }
 
-  if (!userId) {
+  if (!isSignedIn) {
     return null;
   }
 
