@@ -5,16 +5,34 @@ import Link from "next/link";
 import { Search, ChevronDown, Volume2, VolumeX } from "lucide-react";
 import { useState, useRef } from "react";
 import { Navigation } from "./Navigation";
+import { useRouter } from "next/navigation";
 
 export function Hero() {
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
 
   const toggleMute = () => {
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
       setIsMuted(!isMuted);
     }
+  };
+
+  const handleSearch = (
+    e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent
+  ) => {
+    if (
+      (e.type === "keydown" && (e as React.KeyboardEvent).key !== "Enter") ||
+      !searchQuery.trim()
+    ) {
+      return;
+    }
+
+    e.preventDefault();
+    const encodedQuery = encodeURIComponent(searchQuery.trim());
+    router.push(`/events?search=${encodedQuery}`);
   };
 
   return (
@@ -117,12 +135,20 @@ export function Hero() {
             className="max-w-2xl mx-auto px-4"
           >
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Where would you like to go in Akwa Ibom?"
+                onKeyDown={(e) => handleSearch(e)}
                 className="w-full pl-12 pr-4 py-3 sm:py-4 rounded-lg bg-white/90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
+              <button
+                onClick={handleSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700"
+              >
+                <Search className="w-5 h-5" />
+              </button>
             </div>
           </motion.div>
         </div>

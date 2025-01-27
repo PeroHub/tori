@@ -6,14 +6,43 @@ import { auth } from "@clerk/nextjs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET() {
-  try {
-    await connectToDB();
-    const events = await Event.find({
-      status: "approved",
-    }).lean();
+interface MongoQuery {
+  status: string;
+  $or?: Array<{
+    [key: string]: {
+      $regex: string;
+      $options: string;
+    };
+  }>;
+}
 
-    return NextResponse.json(events || []);
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const encodedSearch = searchParams.get("search");
+    // Decode the search query for database search
+    const searchQuery = encodedSearch
+      ? decodeURIComponent(encodedSearch)
+      : null;
+
+    await connectToDB();
+
+    let query: MongoQuery = { status: "approved" };
+
+    if (searchQuery) {
+      query = {
+        ...query,
+        $or: [
+          { title: { $regex: searchQuery, $options: "i" } },
+          { description: { $regex: searchQuery, $options: "i" } },
+          { "location.address": { $regex: searchQuery, $options: "i" } },
+        ],
+      };
+    }
+
+    const events = await Event.find(query).sort({ date: 1 });
+
+    return NextResponse.json(events);
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json(

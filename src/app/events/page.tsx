@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { EventSearch } from "@/components/EventSearch";
-import { EventCard } from "@/components/EventCard";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Event } from "@/types";
+import { EventCard } from "@/components/EventCard";
 import { Loading } from "@/components/ui/loading";
 import { ErrorMessage } from "@/components/ui/error";
 import { Plus } from "lucide-react";
@@ -11,61 +11,46 @@ import Link from "next/link";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
-  const fetchEvents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Decode the search query
+  const encodedSearch = searchParams.get("search");
+  const searchQuery = encodedSearch ? decodeURIComponent(encodedSearch) : null;
 
-      // Simple fetch request
-      const res = await fetch("/api/events");
-
-      // Log response status
-      console.log("Response status:", res.status);
-
-      // Parse JSON response
-      const data = await res.json();
-
-      // Log received data
-      console.log("Received data:", data);
-
-      // Check for error message in response
-      if (data.message) {
-        throw new Error(data.message);
-      }
-
-      // Ensure data is an array
-      if (!Array.isArray(data)) {
-        throw new Error("Invalid response format");
-      }
-
-      // Update both states
-      setEvents(data);
-      setFilteredEvents(data);
-    } catch (error: any) {
-      console.error("Fetch error:", error);
-      setError(error.message || "Failed to load events");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch on mount
   useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Re-encode for API call
+        const url = searchQuery
+          ? `/api/events?search=${encodeURIComponent(searchQuery)}`
+          : "/api/events";
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch events");
+        }
+
+        setEvents(data);
+      } catch (error: any) {
+        console.error("Error fetching events:", error);
+        setError(error.message || "Error loading events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchEvents();
-  }, []);
-
-  const handleSearch = (searchResults: Event[]) => {
-    setFilteredEvents(searchResults);
-  };
-
-  // console.log(filteredEvents, "filteredEvents", "--", events);
+  }, [searchQuery]);
 
   if (loading) return <Loading />;
-  if (error) return <ErrorMessage message={error} retry={fetchEvents} />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
@@ -83,35 +68,24 @@ export default function EventsPage() {
           </Link>
         </div>
 
-        <div className="mb-6 sm:mb-8 w-full">
-          <EventSearch
-            events={events}
-            onSearch={handleSearch}
-            className="w-full"
-          />
-        </div>
+        {searchQuery && (
+          <h2 className="text-2xl font-semibold mb-6">
+            Search results for "{searchQuery}"
+          </h2>
+        )}
 
         {events.length === 0 ? (
-          <div className="text-center py-8 sm:py-12 px-4">
-            <p className="text-gray-500 mb-4 text-sm sm:text-base">
-              No events found.
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">
+              {searchQuery
+                ? `No events found for "${searchQuery}"`
+                : "No events available"}
             </p>
-            <Link
-              href="/sign-in"
-              className="text-primary hover:text-primary/80 text-sm sm:text-base"
-            >
-              Sign in to register an event
-            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-fr">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event) => (
-              <EventCard
-                key={event._id}
-                event={event}
-                type="subscribed"
-                className="h-full"
-              />
+              <EventCard key={event._id} event={event} />
             ))}
           </div>
         )}
