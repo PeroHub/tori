@@ -38,7 +38,7 @@ export function Highlights() {
       {highlights.map((highlight, index) => (
         <motion.div
           key={highlight.title}
-          initial={{ opacity: 0 }}
+          // initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           className={`max-w-7xl mx-auto px-4 mb-20 last:mb-0 ${
@@ -52,6 +52,7 @@ export function Highlights() {
               width={400}
               height={400}
               className="w-full h-[400px] object-cover rounded-lg"
+              quality={100}
             />
           </div>
           <div className="lg:w-1/2 space-y-6">
