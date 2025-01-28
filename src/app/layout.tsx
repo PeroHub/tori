@@ -5,6 +5,8 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 import { Navbar } from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
+import { ActivityPrompt } from "@/components/ActivityPrompt";
+import { ActivityPromptProvider } from "@/contexts/ActivityPromptContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,9 +26,12 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <NotificationProvider>
-              <Navbar />
-              <main className="pt-16">{children}</main>
-              <Toaster position="bottom-right" />
+              <ActivityPromptProvider>
+                <Navbar />
+                <main className="pt-16">{children}</main>
+                <Toaster position="bottom-right" />
+                <ActivityPrompt />
+              </ActivityPromptProvider>
             </NotificationProvider>
           </ThemeProvider>
         </AuthProvider>

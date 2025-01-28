@@ -7,12 +7,14 @@ import { EventCard } from "@/components/EventCard";
 import { Loading } from "@/components/ui/loading";
 import { ErrorMessage } from "@/components/ui/error";
 import { Search } from "lucide-react";
+import { useActivityPrompt } from "@/contexts/ActivityPromptContext";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const { hasSeenPrompt, setShowPrompt } = useActivityPrompt();
 
   const initialSearch = searchParams.get("search");
   const [searchQuery, setSearchQuery] = useState(
@@ -78,6 +80,12 @@ export default function EventsPage() {
 
     fetchEvents();
   }, [initialSearch]);
+
+  useEffect(() => {
+    if (!hasSeenPrompt) {
+      setShowPrompt(true);
+    }
+  }, [hasSeenPrompt, setShowPrompt]);
 
   if (error) return <ErrorMessage message={error} />;
 

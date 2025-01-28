@@ -61,17 +61,21 @@ export function EventCard({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md overflow-hidden ${className} ${
-        type !== "admin" && type !== "dashboard"
-          ? "cursor-pointer hover:shadow-lg"
-          : ""
+      className={`rounded-md  overflow-hidden ${className} ${
+        type !== "admin" && type !== "dashboard" ? "cursor-pointer" : ""
       }`}
       onClick={handleCardClick}
     >
       <div className="relative h-48">
-        <Image src={image} alt={title} fill className="object-cover" />
+        <Image
+          src={image}
+          alt={title}
+          fill
+          className="object-cover rounded-lg"
+          quality={100}
+        />
       </div>
-      <div className="p-4">
+      <div className="pt-2">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
             {title}
